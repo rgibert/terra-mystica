@@ -1,0 +1,41 @@
+Listen {{ apache_port }}
+<VirtualHost *:{{ apache_port }}>
+    ServerName{{ domain }}
+    DocumentRoot {{ playbook_dir }}/www-{{ deploy_mode }}/
+
+    AddDefaultCharset utf-8
+
+    RewriteEngine on
+
+    RewriteRule ^(/stc/.*)$ $1 [L]
+    RewriteRule ^(/data/.*)$ $1 [L]
+    RewriteRule ^/validate/(.*)$ /app/register/validate/$1 [P]
+    RewriteRule ^/validate-alias/(.*)$ /app/alias/validate/$1 [P]
+    RewriteRule ^/validate-reset/(.*)$ /app/reset/validate/$1 [P]
+    RewriteRule ^/((app)/(.*))?$ /$1 [L,PT]
+
+    # RewriteRule ^/down.html$ /down.html [L]
+    # RewriteRule ^(|/|.*) /down.html [R=307,L]
+    # RewriteRule ^(|/|/index.html)$ /down.html [P]
+
+    RewriteRule ^/(([a-z]+)/(.*))?$ /app/template/$1 [P]
+    RewriteRule ^(|/|/index.html)$ /app/template/index [P]
+
+    Options -Indexes +SymLinksIfOwnerMatch
+
+    AddType application/json .json
+    <Location "/stc">
+       Header add "Cache-Control" "public, max-age=864000"
+    </Location>
+
+    FastCgiServer {{ playbook_dir }}/www-{{ deploy_mode }}/lib/app.fcgi -initial-env ENV=prod -initial-env TM_CONFIG= -processes 5
+    ScriptAlias /app/ "{{ playbook_dir }}/www-{{ deploy_mode }}/lib/app.fcgi/"
+
+    ScriptLog ${APACHE_LOG_DIR}/terra-debug.log
+    ErrorLog ${APACHE_LOG_DIR}/terra-error.log
+    LogLevel warn
+    CustomLog ${APACHE_LOG_DIR}/terra-access.log combined
+
+    CustomLog ${APACHE_LOG_DIR}/terra-timing.log "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\" %Dusec"
+
+</VirtualHost>
