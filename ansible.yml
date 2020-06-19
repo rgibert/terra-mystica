@@ -48,9 +48,11 @@
     - name: create dirs
       file:
         name: "{{ item }}"
+        state: directory
+        recurse: true
       with_items:
-        - "www-${deploy_mode}/logs"
-        - "www-${deploy_mode}/data/logs"
+        - "{{ playbook_dir }}/www-{{ deploy_mode }}/logs"
+        - "{{ playbook_dir }}/www-{{ deploy_mode }}/data/logs"
 
     - name: run deploy.pl
       command: "./deploy.pl www-${deploy_mode}"
