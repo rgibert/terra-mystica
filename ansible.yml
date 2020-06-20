@@ -10,6 +10,8 @@
       apt:
         name:
           - apache2
+          - emacs
+          - git
           - libapache2-mod-fcgid
           - libpq-dev
           - perl
@@ -55,7 +57,7 @@
         - "{{ playbook_dir }}/www-{{ deploy_mode }}/data/logs"
 
     - name: run deploy.pl
-      command: "./deploy.pl www-${deploy_mode}"
+      command: "perl ./deploy.pl www-{{ deploy_mode }}"
     
     - name: copy apache config
       template:
