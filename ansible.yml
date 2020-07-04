@@ -74,6 +74,12 @@
       with_items:
         - src: /etc/apache2/sites-available/terramystica.conf
           dest: /etc/apache2/sites-enabled/terramystica.conf
+        - src: /etc/apache2/mods-available/headers.load
+          dest: /etc/apache2/mods-enabled/headers.load
+        - src: /etc/apache2/mods-available/fcgid.load
+          dest: /etc/apache2/mods-enabled/fcgid.load
+        - src: /etc/apache2/mods-available/fcgid.conf
+          dest: /etc/apache2/mods-enabled/fcgid.conf
         - src: /etc/apache2/mods-available/rewrite.load
           dest: /etc/apache2/mods-enabled/rewrite.load
         
