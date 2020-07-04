@@ -65,6 +65,18 @@
         dest: /etc/apache2/sites-available/terramystica.conf
       become: true
     
+    - name: create enabled links
+      file:
+        state: link
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+      become: true
+      with_items:
+        - src: /etc/apache2/sites-available/terramystica.conf
+          dest: /etc/apache2/sites-enabled/terramystica.conf
+        - src: /etc/apache2/mods-available/rewrite.load
+          dest: /etc/apache2/mods-enabled/rewrite.load
+        
     - name: restart apache
       systemd:
         name: apache2
