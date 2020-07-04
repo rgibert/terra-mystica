@@ -6,13 +6,19 @@
     domain: localhost
     apache_port: 8081
   tasks:
+    - name: enable non-free packages
+      replace:
+        path: /etc/apt/sources.list
+        regexp: '^(.*) stretch main$'
+        replace: '\1 stretch main non-free'
+
     - name: install system packages
       apt:
         name:
           - apache2
           - emacs
           - git
-          - libapache2-mod-fcgid
+          - libapache2-mod-fastcgi
           - libpq-dev
           - perl
           - postgresql
@@ -76,10 +82,6 @@
           dest: /etc/apache2/sites-enabled/terramystica.conf
         - src: /etc/apache2/mods-available/headers.load
           dest: /etc/apache2/mods-enabled/headers.load
-        - src: /etc/apache2/mods-available/fcgid.load
-          dest: /etc/apache2/mods-enabled/fcgid.load
-        - src: /etc/apache2/mods-available/fcgid.conf
-          dest: /etc/apache2/mods-enabled/fcgid.conf
         - src: /etc/apache2/mods-available/rewrite.load
           dest: /etc/apache2/mods-enabled/rewrite.load
         
