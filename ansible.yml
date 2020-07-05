@@ -8,12 +8,6 @@
     fcgi_port: 7070
     num_fcgi_procs: 5
   tasks:
-    - name: enable non-free packages
-      replace:
-        path: /etc/apt/sources.list
-        regexp: '^(.*) stretch main$'
-        replace: '\1 stretch main non-free'
-
     - name: install system packages
       apt:
         name:
@@ -72,25 +66,44 @@
     - name: run deploy.pl
       command: "perl ./deploy.pl www-{{ deploy_mode }}"
     
-    - name: copy apache config
+    - name: copy templates
       template:
-        src: config/apache.conf.j2
-        dest: /etc/apache2/sites-available/terramystica.conf
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: "{{ ansible_user_id }}"
       become: true
+      with_items:
+        - src: config/apache.conf.j2
+          dest: /etc/apache2/sites-available/terramystica.conf
+        - src: conf/terra-mystica.service.j2
+          dest: /etc/systemd/system/terra-mystica.service
     
     - name: create enabled links
       file:
         state: link
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
+        owner: "{{ ansible_user_id }}"
       become: true
       with_items:
         - src: /etc/apache2/sites-available/terramystica.conf
           dest: /etc/apache2/sites-enabled/terramystica.conf
         - src: /etc/apache2/mods-available/headers.load
           dest: /etc/apache2/mods-enabled/headers.load
+        - src: /etc/apache2/mods-available/proxy.conf
+          dest: /etc/apache2/mods-enabled/proxy.conf
+        - src: /etc/apache2/mods-available/proxy.load
+          dest: /etc/apache2/mods-enabled/proxy.load
+        - src: /etc/apache2/mods-available/proxy_fcgi.load
+          dest: /etc/apache2/mods-enabled/proxy_fcgi.load
         - src: /etc/apache2/mods-available/rewrite.load
           dest: /etc/apache2/mods-enabled/rewrite.load
+
+    - name: start/enable service
+      systemd:
+        name: terra-mystica
+        state: started
+        enabled: true
 
     - name: restart apache
       systemd:
