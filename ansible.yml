@@ -5,6 +5,8 @@
     deploy_mode: devel # valid options: devel, staging, prod
     domain: localhost
     apache_port: 8081
+    fcgi_port: 7070
+    num_fcgi_procs: 5
   tasks:
     - name: enable non-free packages
       replace:
@@ -53,6 +55,11 @@
         - Text::Diff
         - Text::Template
 
+    - name: install pip packages
+      pip:
+        name:
+          - psycopg2
+
     - name: create dirs
       file:
         name: "{{ item }}"
@@ -84,7 +91,7 @@
           dest: /etc/apache2/mods-enabled/headers.load
         - src: /etc/apache2/mods-available/rewrite.load
           dest: /etc/apache2/mods-enabled/rewrite.load
-        
+
     - name: restart apache
       systemd:
         name: apache2

@@ -1,0 +1,13 @@
+[Unit]
+Description=Terra Mystica
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User={{ ansible_user_id }}
+ExecStart=fcgistarter -c {{ playbook_dir }}/www-{{ deploy_mode }}//lib/app.fcgi -p {{ fcgi_port }} -N {{ num_fcgi_procs }}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
